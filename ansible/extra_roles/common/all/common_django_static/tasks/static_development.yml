@@ -1,0 +1,28 @@
+---
+
+- assert:
+    that:
+      - STATIC_SRC != ''
+  tags: ['check_vars']
+
+- name: "Install Node.js PPA"
+  become: yes
+  become_user: root
+  apt_repository: repo="ppa:{{ item }}"
+  with_items:
+    - "chris-lea/node.js"
+
+- name: Install Node.js
+  become: yes
+  become_user: root
+  apt: name=nodejs state=present
+
+- name: Install Global Node Packages
+  become: yes
+  become_user: root
+  npm: name={{ item }} state=present global=yes
+  with_items:
+    - gulp
+
+- name: "Install Static Development Libraries to Environment"
+  npm: path="{{ STATIC_SRC }}" state=present

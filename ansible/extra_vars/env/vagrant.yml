@@ -1,0 +1,39 @@
+---
+
+OS_USER: vagrant
+
+# common_django_project, common_django_static
+DJANGO_PROJECT_PATH_PARENT:  "/home/vagrant/geodash-server.git"
+
+# common_venv
+VENV_NAME: geodash
+VENV_PATH: "/home/vagrant/.venvs/geodash"
+
+DATABASE_ACL:
+  - regexp: "local {{ DB_NAME }} {{ DB_USER }} md5"
+    line: "local {{ DB_NAME }} {{ DB_USER }} md5"
+    state: present
+  - regexp: "host {{ DB_NAME }} {{ DB_USER }} 127.0.0.1/32 md5"
+    line: "host {{ DB_NAME }} {{ DB_USER }} 127.0.0.1/32 md5"
+    state: present
+
+DATABASE_LISTEN_ADDRESSES:
+  - "*"
+
+GUNICORN_BIND: "127.0.0.1:8000"
+
+# 'unix:///tmp/gunicorn.sock'
+
+GIT_REPOS: []
+
+# common_editable
+COMMON_EDITABLE_PACKAGES:
+  - name: geodash-server
+    parent: /home/vagrant
+    path: geodash-server.git
+  - name: geodash-framework-django
+    parent: /home/vagrant
+    path: geodash-framework-django.git
+
+# common_django_static
+STATIC_DEVELOPMENT: true

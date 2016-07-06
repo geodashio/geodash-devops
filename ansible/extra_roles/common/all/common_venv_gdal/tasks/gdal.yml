@@ -1,0 +1,21 @@
+---
+- assert:
+    that:
+      - GDAL_VERSION != ''
+      - GDAL_SOURCE != ''
+      - VENV_PATH != ''
+  tags: ['check_vars']
+
+- name: Create src directory
+  file: path="~/src" state=directory
+
+- name: "GDAL Python Bindings / Download GDAL-{{ GDAL_VERSION}}"
+  get_url: url="{{ GDAL_SOURCE }}" dest="~/src/GDAL-{{ GDAL_VERSION }}.tar.gz"
+
+- name: "GDAL Python Bindings / Unpack GDAL"
+  unarchive: src="~/src/GDAL-{{ GDAL_VERSION }}.tar.gz" dest="~/src/" copy=no
+
+- name: "GDAL Python Bindings / Install"
+  shell: "{{ VENV_PATH }}/bin/python2.7 setup.py build_ext $(gdal-config --cflags) install"
+  args:
+    chdir: "~/src/GDAL-{{ GDAL_VERSION }}"

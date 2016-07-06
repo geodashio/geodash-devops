@@ -1,0 +1,27 @@
+---
+
+- assert:
+    that:
+      - VENV_PATH != ''
+      - PRJ_REPO_PATH_MAIN != ''
+      - SUPERVISOR_PROGRAMS != ''
+  tags: ['check_vars']
+
+- name: "Supervisor / Kill Supervisord"
+  become: yes
+  become_user: root
+  shell: "killall -w supervisord"
+  failed_when: false
+
+- name: "Supervisor / Start Supervisord"
+  shell: "supervisord"
+  args:
+    chdir: "{{ PRJ_REPO_PATH_MAIN }}"
+  failed_when: false
+
+- name: "Supervisor / Restart Programs"
+  shell: "{{ VENV_PATH }}/bin/supervisorctl restart {{ item }}"
+  args:
+    chdir: "{{ PRJ_REPO_PATH_MAIN }}"
+  with_items: "{{ SUPERVISOR_PROGRAMS }}"
+  failed_when: false

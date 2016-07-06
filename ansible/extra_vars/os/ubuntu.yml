@@ -1,0 +1,10 @@
+---
+
+# common_db_init, common_db_security, common_db_install_ubuntu
+PATH_PG_HBA: "/etc/postgresql/9.3/main/pg_hba.conf"
+PATH_PG_CONF: "/etc/postgresql/9.3/main/postgresql.conf"
+
+PACKAGES_JAVA:
+  - "openjdk-7-jdk"
+
+ALTERNATIVE_JAVA: "/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java"

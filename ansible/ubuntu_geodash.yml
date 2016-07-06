@@ -1,0 +1,24 @@
+---
+
+- name: Creates a GeoDash development virtual machine
+  hosts: all
+  remote_user: vagrant
+
+  roles:
+    - common_base_ubuntu  # Installs basic libraries, including GCC, PIP
+    - common_java_ubuntu # Installs Java
+    - common_db_install_ubuntu # Installs PostGIS Server and Database Tempaltes
+    - common_db_security # Configures Database ACL
+    - common_db_init # Initializes Databse
+    - common_django_server_ubuntu # Installs standard debian dependencies for django and python apps
+    - common_venv # Creates geodash virutal python environment
+    - common_venv_gdal # Installs GDAL to the virtual python environment
+    - common_git_repos
+    - common_django_project # Installs Django project to venv and configure supervisor and gunicorn
+    - common_editable  # Installs local geodash-server.git and geodash-framework-django.git repos as editable
+    - common_django_migrations # Runs initial migrations
+    - common_django_static  # Installs NGINX, and configures service
+
+    #- common_webserver_django_ubuntu  # Installs dependencies, and configures uwsgi service
+    #- common_webserver_proxy_ubuntu  # Installs NGINX, and configures service
+    #- common_venv_ubuntu

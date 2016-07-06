@@ -1,0 +1,64 @@
+---
+
+# common_db_init, common_db_security
+DB_NAME: geodash
+DB_USER: geodash
+
+# common_venv_gdal
+GDAL_VERSION: "1.10.0"
+GDAL_SOURCE: "http://pypi.python.org/packages/source/G/GDAL/GDAL-1.10.0.tar.gz"
+
+# common_django_project, common_django_static
+DJANGO_PROJECT_NAME: geodashserver
+
+RUNTIME_PACKAGES:
+  - supervisor
+  - gunicorn
+
+SUPERVISOR_PROGRAMS:
+  - "geodash:memcached"
+  - "geodash:gunicorn"
+
+SUPERVISOR_GROUP: geodash
+
+GUNICORN_BIND: "127.0.0.1:8000"
+
+# common_django_static
+STATIC_SRC: "{{ DJANGO_PROJECT_PATH_PARENT }}/{{ DJANGO_PROJECT_NAME }}/static/{{ DJANGO_PROJECT_NAME }}"
+STATIC_DEST: /var/www
+STATIC_ROOT: /var/www/static
+WWW_ROOT: /var/www
+
+# common_django_migrations
+DJANGO_APPS:
+  - "geodashserver"
+DJANGO_FIXTURES:
+  - geodashserver/fixtures/dashboards.yml
+SUPERUSER_USERNAME: admin
+SUPERUSER_EMAIL: admin@example.com
+###############
+
+# pre_tasks & common_base_centos
+URI_SOURCE:
+  python276: "http://python.org/ftp/python/2.7.6/Python-2.7.6.tgz"
+  ez_setup: "https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py"
+  postgis: "http://download.osgeo.org/postgis/source/postgis-2.0.6.tar.gz"
+
+# common_webserver_proxy_centos
+PACKAGES_TOMCAT:
+  - "tomcat6"
+
+SERVICES_TOMCAT:
+  - "tomcat6"
+
+# common_webserver_proxy_centos
+PACKAGES_PROXY:
+  - http://nginx.org/packages/rhel/6/noarch/RPMS/nginx-release-rhel-6-0.el6.ngx.noarch.rpm
+
+
+
+# geonode
+#PIP_VERSION: "6.1.1"
+PIP_VERSION: "8.1.1"
+GEOSERVER_WAR_LOCATION: "http://build.geonode.org/geoserver/latest/geoserver.war"
+POSTGIS_VERSION: "( 2, 0, 6 )"

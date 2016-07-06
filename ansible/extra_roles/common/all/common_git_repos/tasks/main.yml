@@ -1,0 +1,13 @@
+---
+
+- assert:
+    that:
+      - GIT_REPOS != ''
+  tags: ['check_vars']
+
+- name: "Checkout Git Repos"
+  git:
+    repo: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    version: "{{ item.version }}"
+  with_items: "{{ GIT_REPOS }}"

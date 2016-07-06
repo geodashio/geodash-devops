@@ -1,0 +1,36 @@
+---
+
+- assert:
+    that:
+      - PATH_PG_HBA != ''
+      - PATH_PG_CONF != ''
+      - DATABASE_ACL != ''
+      - DATABASE_LISTEN_ADDRESSES != ''
+  tags: ['check_vars']
+
+- name: "Common Database Security / Add access to pg_hba.conf for DB users"
+  become: yes
+  become_user: postgres
+  lineinfile:
+    dest: "{{ PATH_PG_HBA }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: "{{ item.state }}"
+    create: yes
+    owner: "postgres"
+    group: "postgres"
+    mode: "u=rw,g=rw,o=r"
+  with_items: "{{ DATABASE_ACL }}"
+  notify: restart postgresql-9.2
+
+- name: "Common Database Security / Add access to postgresql.conf for IP Addresses"
+  become: yes
+  become_user: postgres
+  lineinfile:
+    dest: "{{ PATH_PG_CONF }}"
+    regexp: "^#?listen_addresses\\s*="
+    line: "listen_addresses = '{{ DATABASE_LISTEN_ADDRESSES | join(',') }}'"
+    state: present
+  notify: restart postgresql-9.2
+
+- meta: flush_handlers  # Restart PostgreSQL if pg_hba.conf or postgresql.conf changed

@@ -1,0 +1,8 @@
+---
+- assert:
+    that:
+      - COMMON_EDITABLE_PACKAGES != ''
+  tags: ['check_vars']
+
+- include: editable.yml
+  with_items: "{{ COMMON_EDITABLE_PACKAGES }}"

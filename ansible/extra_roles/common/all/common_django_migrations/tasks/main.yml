@@ -1,0 +1,48 @@
+---
+
+- assert:
+    that:
+      - VENV_PATH != ''
+      - DJANGO_PROJECT_PATH_PARENT != ''
+      - DJANGO_APPS != ''
+      - SUPERUSER_USERNAME != ''
+      - SUPERUSER_PASSWORD != ''
+      - SUPERUSER_EMAIL != ''
+      - DJANGO_FIXTURES != ''
+  tags: ['check_vars']
+
+- name: "Migrations / Fake Initial"
+  shell: "{{ VENV_PATH }}/bin/python manage.py migrate --fake-initial"
+  args:
+    chdir: "{{ DJANGO_PROJECT_PATH_PARENT }}"
+
+- name: "Migrations / Make Migrations for Apps"
+  shell: "{{ VENV_PATH }}/bin/python manage.py makemigrations {{ item }}"
+  with_items: "{{ DJANGO_APPS }}"
+  args:
+    chdir: "{{ DJANGO_PROJECT_PATH_PARENT }}"
+
+- name: "Migrations / Migrate Apps"
+  shell: "{{ VENV_PATH }}/bin/python manage.py migrate {{ item }}"
+  with_items: "{{ DJANGO_APPS }}"
+  args:
+    chdir: "{{ DJANGO_PROJECT_PATH_PARENT }}"
+  failed_when: False
+
+- name: "Migrations / Create Web App Superuser"
+  expect:
+    command: "/bin/bash -c \". ~/.bash_aliases; {{ VENV_PATH }}/bin/python manage.py createsuperuser --username {{ SUPERUSER_USERNAME }} --email {{ SUPERUSER_EMAIL }}\""
+    responses:
+      Password: "{{ SUPERUSER_PASSWORD }}"
+      Password (again): "{{ SUPERUSER_PASSWORD }}"
+  args:
+    chdir: "{{ DJANGO_PROJECT_PATH_PARENT }}"
+  register: superuser_created
+  changed_when: superuser_created and superuser_created.rc == 0
+  failed_when: False
+
+- name: "Migrations / Load Fixtures"
+  shell: "{{ VENV_PATH }}/bin/python manage.py loaddata {{ item }}"
+  args:
+    chdir: "{{ DJANGO_PROJECT_PATH_PARENT }}"
+  with_items: "{{ DJANGO_FIXTURES }}"

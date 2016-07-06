@@ -1,0 +1,57 @@
+---
+
+#########################################################
+## See https://github.com/ansible/ansible-modules-extras/issues/681 for potential
+# future performance improvements to npm install
+
+# - name: Install Bower & Gulp to Local Environment
+#  npm: "name={{ item }} path={{ STATIC_SRC }} state=latest"
+#  with_items:
+#    - bower
+#    - gulp
+
+#- name: Install SPARC 2.x Static Development Libraries to Local Environment
+#  npm: path={{ STATIC_SRC }} state=latest
+
+#########################################################
+
+- assert:
+    that:
+      - STATIC_SRC != ''
+      - WWW_ROOT != ''
+      - STATIC_DEST != ''
+      - VENV_PATH != ''
+      - DJANGO_PROJECT_PATH_PARENT != ''
+  tags: ['check_vars']
+
+- name: "Install NGINX"
+  become: yes
+  become_user: root
+  apt: name=nginx state=present
+
+- name: "Update /etc/nginx/sites-available/default"
+  become: yes
+  become_user: root
+  template: src=templates/nginx.sites-available.default.j2 dest=/etc/nginx/sites-available/default
+  notify:
+    - restart nginx
+
+- name: Create WWW Root
+  become: yes
+  become_user: root
+  file: "path={{ WWW_ROOT }} state=directory owner=root"
+
+- name: Create Static Destination
+  become: yes
+  become_user: root
+  file: "path={{ STATIC_DEST }} state=directory owner=root"
+
+- include: static_development.yml
+  when: "{{ STATIC_DEVELOPMENT }}"
+
+- name: Collect Static
+  become: yes
+  become_user: root
+  shell: "{{ VENV_PATH }}/bin/python manage.py collectstatic --noinput -i gulpfile.js -i package.json -i temp -i node_modules > /dev/null 2>&1"
+  args:
+    chdir: "{{ DJANGO_PROJECT_PATH_PARENT }}"

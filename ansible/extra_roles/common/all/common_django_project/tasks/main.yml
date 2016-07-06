@@ -1,0 +1,41 @@
+---
+
+- assert:
+    that:
+      - VENV_PATH != ''
+      - DJANGO_PROJECT_PATH_PARENT != ''
+      - RUNTIME_PACKAGES != ''
+  tags: ['check_vars']
+
+- name: "Upgrade PIP to latest"
+  shell: "{{ VENV_PATH }}/bin/pip install pip --upgrade"
+  register: pip_upgrade_result
+  changed_when: ! (pip_upgrade_result.stdout | startswith("Requirement already up-to-date"))
+
+- name: "Install Security Packages used by PIP"
+  pip: "name={{ item }} virtualenv={{ VENV_PATH }}"
+  with_items:
+    - pyopenssl
+    - ndg-httpsclient
+    - pyasn1
+
+- name: "Install Cython"
+  pip: "name=cython virtualenv={{ VENV_PATH }}"
+
+- name: "Install Requirements"
+  pip: "requirements={{ item }} virtualenv={{ VENV_PATH }}"
+  with_items: "{{ DJANGO_PROJECT_PATH_PARENT }}/requirements.txt"
+
+- name: "Install Runtime Packages"
+  pip: "name={{ item }} virtualenv={{ VENV_PATH }}"
+  with_items: "{{ RUNTIME_PACKAGES }}"
+
+- name: "Update supervisord.conf"
+  template:
+    src: templates/supervisord.conf.j2
+    dest: "{{ DJANGO_PROJECT_PATH_PARENT }}/supervisord.conf"
+
+- name: "Update gunicorn.con.py"
+  template:
+    src: templates/gunicorn.conf.py.j2
+    dest: "{{ DJANGO_PROJECT_PATH_PARENT }}/gunicorn.conf.py"
