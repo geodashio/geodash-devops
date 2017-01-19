@@ -8,16 +8,7 @@ On the control/host machine, you'll need to install [Ansible](https://www.ansibl
 
 **Quick Install**
 
-If you wish to use a python virtual environment on your host/control machine, be sure to install `virutalenv` and `virtualenvwrapper`.  Your `~/.bash_aliases` file should look something like the following:
-
-```
-export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
-export WORKON_HOME=~/.venvs
-source /usr/local/bin/virtualenvwrapper.sh
-export PIP_DOWNLOAD_CACHE=$HOME/.pip-downloads
-```
-
-To quickly install [Ansible](https://www.ansible.com/) and [Fabric](http://www.fabfile.org), run the following:
+For some machines, you can quickly install [Ansible](https://www.ansible.com/) and [Fabric](http://www.fabfile.org) with the following:
 
 ```
 sudo apt-get install python-dev # if not already installed
@@ -80,27 +71,30 @@ TBD
 
 # Usage
 
-Create a `secret.yml` file in the project root.  Include the `DOMAIN_NAME`, `DB_PASS`, and `SUPERUSER_PASSWORD` in the `secret.yml` files.  For example:
+Create a `secret.yml` file in the project root.  Include the `DOMAIN_NAME`, `DB_PASS`, `SUPERUSER_PASSWORD`, and `NPM_PROJECTS`, as applicable, in the `secret.yml` files.  For example:
 
 ```
 DOMAIN_NAME: geodash.example.com
 DB_PASS: geodash
 SUPERUSER_PASSWORD: admin
+NPM_PROJECTS:
+  - ~/geodash.js.git
+  - ~/geodash-viewer.git
 ```
 
 ## Vagrant
-
-To add the Centos 6.4 vagrant box to your control machine, run:
-
-```
-vagrant box add --name "centos/6.4" http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20131103.box
-
-```
 
 To add an Ubuntu 14.04 ("Trusty") vagrant box to your control machine, run:
 
 ```
 vagrant box add ubuntu/trusty64
+
+```
+
+To add the Centos 6.4 vagrant box to your control machine, run:
+
+```
+vagrant box add --name "centos/6.4" http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20131103.box
 
 ```
 
@@ -192,3 +186,24 @@ gunicorn geodashserver.wsgi --check-config
 ## Fabric
 
 TBD
+
+
+# GeoDash Developer Workflow
+
+Below are some normative suggestions on how to setup an effective developer workflow for GeoDash using this repo.
+
+First, you should share key repos from the `host` into the `guest`.  Uncomment the following lines in your `Vagrantfile`.  Preserve the `.git` suffix for the folders, since it makes it mush easer to identify them as versioned repos.
+
+```
+config.vm.synced_folder "~/workspaces/public/geodash-viewer.git", "/home/vagrant/geodash-viewer.git"
+config.vm.synced_folder "~/workspaces/public/geodash-server.git", "/home/vagrant/geodash-server.git"
+config.vm.synced_folder "~/workspaces/public/geodash-base.git", "/home/vagrant/geodash-base.git"
+```
+
+Second, create 1 line chained commands for building library code and copying over into implementing applications.  For example, the first line below builds GeoDashJS and then copies into `geodash-base`, which is used by `geodash-viewer`.  The second line builds `geodash-viewer`.
+
+
+```
+cd ~/geodash.js.git; npm run build; cp dist/* ~/geodash-base.git/lib/geodashjs/0.0.1/
+cd ~/geodash-viewer.git; gulp
+```

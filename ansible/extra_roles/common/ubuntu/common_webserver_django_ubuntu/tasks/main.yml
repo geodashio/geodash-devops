@@ -20,10 +20,14 @@
   become_user: root
   apt: name="{{ item }}" state=latest
   with_items:
-    - libgdal1h
+    #- libgdal1h # Not required for GeoNode in Ubuntu 16.04 LTS
+    #- numpy-dev # Not required for GeoNode development, but maybe for downstream projects
     - libgdal-dev
     - libgeos-dev
+    #- libgeos-c1  # see https://groups.google.com/forum/#!topic/cartodb/CuDJs5Nm0ww
+    - libgeos-c1v5  # see https://groups.google.com/forum/#!topic/cartodb/CuDJs5Nm0ww
     - libpq-dev
+    #- libsqlite3-mod-spatialite  # Not default.  If using Django spatialite backend, install this.
 
 - name: Install Other Libraries
   become: yes
@@ -46,3 +50,11 @@
     #- python-django-nose
     #- python-django-pagination
     #- python-gdal
+
+- name: Install Python Libraries (via PIP)
+  become: yes
+  become_user: root
+  pip: name="{{ item }}" state=latest
+  with_items:
+    - virtualenvwrapper
+    - paver

@@ -21,7 +21,7 @@
     group: "postgres"
     mode: "u=rw,g=rw,o=r"
   with_items: "{{ DATABASE_ACL }}"
-  notify: restart postgresql-9.2
+  notify: restart postgresql
 
 - name: "Common Database Security / Add access to postgresql.conf for IP Addresses"
   become: yes
@@ -31,6 +31,6 @@
     regexp: "^#?listen_addresses\\s*="
     line: "listen_addresses = '{{ DATABASE_LISTEN_ADDRESSES | join(',') }}'"
     state: present
-  notify: restart postgresql-9.2
+  notify: restart postgresql
 
 - meta: flush_handlers  # Restart PostgreSQL if pg_hba.conf or postgresql.conf changed

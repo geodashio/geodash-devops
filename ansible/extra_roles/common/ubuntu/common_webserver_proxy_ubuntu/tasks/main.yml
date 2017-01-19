@@ -1,16 +1,19 @@
 ---
 
-- name: "Add Node.js repo"
+- name: Install NGINX
   become: yes
   become_user: root
-  apt_repository: repo="ppa:chris-lea/node.js" state=present
+  apt: name="{{ item }}" state=latest
+  with_items:
+    - nginx
 
-- name: Install Other Libraries
+- name: Install Node.js & NPM
   become: yes
   become_user: root
   apt: name="{{ item }}" state=latest
   with_items:
     - nodejs
+    - npm
 
 - name: Install NPM Libraries
   become: yes
@@ -18,4 +21,12 @@
   npm: name="{{ item }}" state=latest global=yes
   with_items:
     - bower
+    - yarn
     - grunt-cli
+    - karma-cli
+    - gulp-cli
+
+- name: Alias node & nodejs
+  become: yes
+  become_user: root
+  file: "src=/usr/bin/nodejs dest=/usr/bin/node state=link owner=root"

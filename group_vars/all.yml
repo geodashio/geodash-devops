@@ -55,10 +55,13 @@ SERVICES_TOMCAT:
 PACKAGES_PROXY:
   - http://nginx.org/packages/rhel/6/noarch/RPMS/nginx-release-rhel-6-0.el6.ngx.noarch.rpm
 
-
-
 # geonode
 #PIP_VERSION: "6.1.1"
 PIP_VERSION: "8.1.1"
 GEOSERVER_WAR_LOCATION: "http://build.geonode.org/geoserver/latest/geoserver.war"
 POSTGIS_VERSION: "( 2, 0, 6 )"
+
+
+# common_npm_projects
+
+NPM_PROJECTS: []

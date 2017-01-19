@@ -4,21 +4,35 @@
   hosts: all
   remote_user: vagrant
 
+  pre_tasks:
+    - name: 'Reconfigue Locales'
+      shell: "{{ item }}"
+      become: yes
+      become_user: root
+      with_items:
+        - "export LANGUAGE=en_US.UTF-8"
+        - "export LANG=en_US.UTF-8"
+        - "export LC_ALL=en_US.UTF-8"
+        - "locale-gen --purge en_US.UTF-8"
+        - "echo 'LANG=en_US.UTF-8\nLANGUAGE=en_US:en\n' > /etc/default/locale"
+        #- "dpkg-reconfigure locales"
   roles:
     - common_base_ubuntu  # Installs basic libraries, including GCC, PIP
     - common_java_ubuntu # Installs Java
     - common_db_install_ubuntu # Installs PostGIS Server and Database Tempaltes
-    - common_db_security # Configures Database ACL
-    - common_db_init # Initializes Databse
-    - common_django_server_ubuntu # Installs standard debian dependencies for django and python apps
-    - common_venv # Creates geodash virutal python environment
-    - common_venv_gdal # Installs GDAL to the virtual python environment
-    - common_git_repos
+    - common_db_security # Configures Database ACL and Firewall
+    #XXX- common_db_init # Initializes Databse
+    #XXX- common_django_server_ubuntu # Installs standard debian dependencies for django and python apps
+    - common_venv # Creates python virtual environment ~/.venvs/geodash
+    #XXX- common_venv_gdal # Installs GDAL to the virtual python environment
+    #XXX- common_git_repos # Checks out Git Repos from `GIT_REPOS`.
+    - common_webserver_django_ubuntu  # Installs requirements.txt and configures supervisor+gunicorn
     - common_django_project # Installs Django project to venv and configure supervisor and gunicorn
-    - common_editable  # Installs local geodash-server.git and geodash-framework-django.git repos as editable
-    - common_django_migrations # Runs initial migrations
-    - common_django_static  # Installs NGINX, and configures service
+    - common_webserver_proxy_ubuntu  # Installs NGINX, NodeJS, NPM, Gulp, etc.
+    - common_npm_projects  # Runs npm install on repos
 
-    #- common_webserver_django_ubuntu  # Installs dependencies, and configures uwsgi service
-    #- common_webserver_proxy_ubuntu  # Installs NGINX, and configures service
+
+    #- common_editable  # Installs local geodash-server.git and geodash-framework-django.git repos as editable
+    #- common_django_migrations # Runs initial migrations
+    #- common_django_static  # Installs NGINX, and configures service
     #- common_venv_ubuntu

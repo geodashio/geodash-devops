@@ -1,0 +1,11 @@
+---
+
+- assert:
+    that:
+      - NPM_PROJECTS != ''
+  tags: ['check_vars']
+
+- name: Install Local NPM Packages
+  #shell: "cd {{ item }}; npm install"
+  npm: path="{{ item }}"
+  with_items: "{{ NPM_PROJECTS }}"

@@ -10,7 +10,7 @@
 - name: Install PostgreSQL
   become: yes
   become_user: root
-  apt: name=postgresql-9.3-postgis-2.1 state=present
+  apt: name="{{ DATABASE_APT_PACKAGE }}" state=present
 
 # psycopg2 is necessary for ansible postgresql_db tasks
 - name: Install Psycopg2

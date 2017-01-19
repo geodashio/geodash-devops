@@ -26,6 +26,7 @@
     - build-essential
     - python-dev
     - python-pip
+    - python-virtualenv
     - python-apt
 
 - name: Install Python Virtual Environment Libraries
